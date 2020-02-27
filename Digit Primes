@@ -1,0 +1,76 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define mx  1000001
+
+long long status[mx],ar[mx];
+void sieve()
+{
+     long long i, j, N; 
+     N = sqrt(mx);
+     
+     status[1]=1;
+     for(i = 4; i  <= mx; i+=2)
+     {
+     	status[i] = 1;
+     }
+
+     for( i = 3; i <= N; i += 2 ) 
+     {
+		 if( status[i]==0)
+		 {
+	 		 for( j = i*i; j <= mx; j += 2*i )
+			 {
+				 status[j]=true;
+	 		 }
+		 }
+	 }
+	
+     long long t,sum,f,c;
+     ar[2] = 1;
+     long long st;
+     st = 2;
+	 for(i = 3;i <= mx; i++){
+		if(status[i]==0)
+			{
+				t = i;
+				f = 0;
+				sum = 0;
+				while(t!=0)
+				{
+					f = t%10;
+					sum+=f;
+					t = t/10;
+
+				}
+				if(status[sum]==0){
+					//c++;
+					ar[i] =ar[st] + 1;
+					st = i;
+					//cout<<i<<" "<<sum<<endl;
+				}
+				else
+				ar[i] =ar[st];
+
+			}
+			else
+				ar[i] =ar[st];
+		}
+}
+
+int main()
+{
+	sieve();
+	long long n,t,a,f,b;
+	scanf("%lld",&n);
+	while(n--)
+	{
+		scanf("%lld%lld",&a,&b);
+		
+		//cout<<ar[b]<<" "<<ar[a]<<endl;
+		
+		printf("%lld\n",ar[b]-ar[a]);
+	}
+
+
+}
