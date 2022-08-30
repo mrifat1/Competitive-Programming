@@ -4,6 +4,7 @@ int main()
 {
     int t;
     FILE *fptr,*fptr2;
+    int f;
     
     // vector<string>v[105];
     fptr = fopen("inputb1.txt","r");
