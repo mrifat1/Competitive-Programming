@@ -7,6 +7,7 @@ int main()
     getline(cin,str);
     unordered_map<char,int>freq;
     char chars[2];
+    char c3;
 
     for (int i = 0; i < str.length(); i++)
     {
