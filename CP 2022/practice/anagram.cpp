@@ -4,6 +4,7 @@ int main()
 {
     string str, str2;
     cin>>str>>str2;
+    int blah;
 
     sort(str.begin(),str.end());
     sort(str2.begin(),str2.end());
