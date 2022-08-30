@@ -14,6 +14,7 @@ int main()
         int a,b;
         cin>>a>>b;
         v[a].push_back(b);
+        // v[b].push_back(a);
         /* code */
     }
     queue<int>q;
@@ -54,6 +55,10 @@ int main()
         }
         cout<<vec[vec.size()-1]<<endl;
 
+    }
+    else
+    {
+        cout<<"IMPOSSIBLE"<<endl;
     }
     
 }
