@@ -5,7 +5,6 @@ int main()
     int t;
     FILE *fptr,*fptr2;
     
-    // vector<string>v[105];
     fptr = fopen("inputb1.txt","r");
     fptr2 = fopen("outputb1.txt","w");
     fscanf(fptr,"%d",&t);
