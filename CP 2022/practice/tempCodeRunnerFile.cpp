@@ -1,5 +1,2 @@
- // cout<<v[i].size()<<endl;
-string str;
-    getline(cin,str);
-string str;
-    getline(cin,str);
+
+                for(int jj = 0; jj < arr[j].size(); j
