@@ -24,8 +24,7 @@ void bfs(int source)
                 cst[val2]=cst[val]+1;
 
             }
-        }
-        
+        } 
     }
 }
 void bfs2(int dest)
