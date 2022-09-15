@@ -12,8 +12,8 @@ where OSX uses the clang compiler.
 >create a folder named bits inside this directory and then copy the stdc++.h file from this
 github link (https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/precompiled/stdc%2B%2B.h).
 then -
->paste the code copied from the github link
-then save it. 
+>create a file naming bits/stdc++.h inside the bits folder and paste the code copied from the github link into bits/stdc++.h file,
+ then save it.
 
 > then initially after restarting vscode, some user get a error message as 
 some library is deprecated in stdc++.h.
