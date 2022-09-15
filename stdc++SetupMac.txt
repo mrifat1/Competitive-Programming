@@ -1,0 +1,47 @@
+//stdc++.h setup on mac (without xcode)
+
+Assuming that you've installed the homebrew and C/C++ compiler extension.
+Then follow the steps. As the bits/stdc++ is a GNU GCC extension, 
+where OSX uses the clang compiler.
+
+> brew install gcc
+> gcc --version
+>go to the /Library/Developer/CommandLineTools/usr/include directory
+(go to finder, type command+shift+g, then paste the directory name)
+
+>create a folder named bits inside this directory and then copy the stdc++.h file from this
+github link (https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/precompiled/stdc%2B%2B.h).
+then -
+>paste the code copied from the github link
+then save it. 
+
+> then initially after restarting vscode, some user get a error message as 
+some library is deprecated in stdc++.h.
+for dismissing that error, you should add the gcc library's path to c_cpp_properties.json file's includePath.
+("/usr/local/Cellar/gcc/12.2.0/include/c++/12",
+"/usr/local/Cellar/gcc/12.2.0/include/c++/12/x86_64-apple-darwin21")
+You can get this path by hovering on your #include file on code too.
+add two path to your includePath section inside of C_cpp_properties.json file
+I am giving the c_cpp_properties.json initial file here.
+make sure your compilerPath is "/usr/bin/clang"
+"configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/local/Cellar/gcc/12.2.0/include/c++/12",
+                "/usr/local/Cellar/gcc/12.2.0/include/c++/12/x86_64-apple-darwin21"
+            ],
+            "defines": [],
+            "macFrameworkPath": [
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "macos-clang-x64"
+        }
+    ],
+
+
+
