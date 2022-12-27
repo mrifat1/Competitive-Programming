@@ -31,11 +31,13 @@ void bfs(int val)
 }
 int main()
 {
-    FasterIO int t;
+    FasterIO;
+    int t;
     int cs = 0;
     cin >> t;
     while (t--)
     {
+        memset(cont, 0, sizeof(cont));
         int n, k, m;
         cin >> k >> n >> m;
         int ar[n + 5];

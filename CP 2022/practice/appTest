@@ -1,0 +1,431 @@
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, BackHandler } from 'react-native';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
+import { useFocusEffect } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+// import CircularProgress from 'react-native-circular-progress-indicator';
+import { RootState } from '@app/store';
+import { fetchQuizResult } from '@app/features/Quiz';
+import {
+  BodyLarge,
+  BodyMedium,
+  BodySmall,
+  H2,
+  H4,
+  H6,
+  H7,
+} from '@app/styles/typography';
+import ExamDetails from '@app/components/ExamDetails';
+import { Colors, Padding } from '@app/config/theme';
+// import { BodyLarge, H1, BodySmall } from '@app/styles/typography';
+import moment from 'moment';
+// import { CustomButton } from '@app/components';
+import { Result } from 'types';
+import ResultCap from '@app/assets/images/result-cap.svg';
+
+const ResultScreen = ({
+  navigation,
+  route: {
+    params: { quizDetails, screenName },
+  },
+}: Result) => {
+  const { quizResults } = useSelector((state: RootState) => state.Quiz);
+  const result = quizResults[quizDetails?._id]
+    ? quizResults[quizDetails?._id]
+    : {};
+
+  // const totalIncorrect = result?.quiz?.mcqs?.length - result?.totalCorrect;
+  // const totalCorrect = result?.totalCorrect;
+  // const totalMarks = result?.totalCorrect * result?.quiz?.marksPerQuestion;
+
+  let publishedTime = moment(result?.quiz?.answerPublishTime).subtract(
+    6,
+    'hours',
+  );
+  const [, setIsPublished] = useState(false);
+  const dispatch = useDispatch();
+  console.log('quizresultsss', quizDetails?._id);
+
+  useEffect(() => {
+    (async () => {
+      await dispatch(fetchQuizResult(quizDetails?._id));
+      setIsPublished(moment(new Date().toISOString()).isAfter(publishedTime));
+    })();
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        if (screenName === 'practice') {
+          navigation.navigate('ExamDescriptionScreen', { quizDetails });
+        } else {
+          navigation.navigate('HomeScreen');
+        }
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress,
+      );
+      return () => backHandler.remove();
+    }, [quizResults, navigation]),
+  );
+
+  return (
+    <View style={styles.container}>
+      {/* <View>
+        <View style={styles.leaderBoard}>
+          <ExamDetails
+            examLevel={result?.quiz?.dificultyLevel}
+            examTime={result?.quiz?.duration}
+            examBatch={result?.quiz?.academicLevel}
+          />
+          <View style={styles.markContainer}>
+            <BodyMedium>
+              <H1 style={styles.courseMarkStyle}>
+                {result?.totalCorrect
+                  ? result?.totalCorrect * result?.quiz?.marksPerQuestion
+                  : 0}
+                /
+              </H1>
+              <BodyLarge style={styles.bodyLargeStyle}>
+                {result?.quiz?.mcqs?.length
+                  ? result?.quiz?.mcqs?.length * result?.quiz?.marksPerQuestion
+                  : 0}
+              </BodyLarge>
+            </BodyMedium>
+
+            <CustomButton
+              onPress={() =>
+                navigation.navigate('LeaderBoardScreen', {
+                  quizDetails: quizDetails,
+                })
+              }
+              style={styles.textLeaderboard}
+            >
+              <H7 style={{ color: Colors.light4 }}>Leaderboard</H7>
+            </CustomButton>
+          </View>
+        </View>
+
+        <View style={styles.performanceContainer}>
+          <View style={styles.insidePerformanceContainer}>
+            <View style={styles.progressBarStyle}>
+              <CircularProgress
+                value={
+                  result?.totalCorrect
+                    ? ((result?.totalCorrect * result?.quiz?.marksPerQuestion) /
+                        (result?.quiz?.mcqs?.length *
+                          result?.quiz?.marksPerQuestion)) *
+                      100
+                    : 0
+                }
+                radius={90}
+                duration={6000}
+                textColor={'black'}
+                title={'Accuracy'}
+                titleColor={'#8893a6'}
+                titleStyle={{ fontSize: 12 }}
+                maxValue={100}
+                valueSuffix={'%'}
+                inActiveStrokeColor={'#d3dff5'}
+                activeStrokeWidth={20}
+                inActiveStrokeWidth={20}
+              />
+            </View>
+            <View style={styles.firstRowStyle}>
+              <BodyMedium style={styles.firstColumnStyle}>SUBJECT</BodyMedium>
+              <BodyMedium style={styles.secondColumnStyle}>CORRECT</BodyMedium>
+              <BodyMedium style={styles.secondColumnStyle}>WRONG</BodyMedium>
+              <BodyMedium style={styles.secondColumnStyle}>MARKS</BodyMedium>
+            </View>
+            <View style={styles.secondRowStyle}>
+              <BodyMedium style={styles.columnStyle}>
+                {result?.quiz?.name}
+              </BodyMedium>
+              <BodyMedium style={styles.secondColumnStyle}>
+                {totalCorrect ? totalCorrect : 0}
+              </BodyMedium>
+              <BodyMedium style={styles.secondColumnStyle}>
+                {totalIncorrect ? totalIncorrect : 0}
+              </BodyMedium>
+              <BodyMedium style={styles.secondColumnStyle}>
+                {totalMarks ? totalMarks : 0}
+              </BodyMedium>
+            </View>
+            <View style={styles.thirdRowStyle}>
+              <BodyMedium style={[styles.columnStyle, styles.textStyle]}>
+                Total
+              </BodyMedium>
+              <BodyMedium style={[styles.secondColumnStyle, styles.textStyle]}>
+                {totalCorrect ? totalCorrect : 0}
+              </BodyMedium>
+              <BodyMedium style={[styles.secondColumnStyle, styles.textStyle]}>
+                {totalIncorrect ? totalIncorrect : 0}
+              </BodyMedium>
+              <BodyMedium style={[styles.secondColumnStyle, styles.textStyle]}>
+                {totalMarks ? totalMarks : 0}
+              </BodyMedium>
+            </View>
+          </View>
+          {quizDetails?.answerPublishTime && (
+            <BodySmall number of Lines={1} style={styles.publishTime}>
+              The result will be publish on{' '}
+              {moment(quizDetails?.answerPublishTime)
+                .subtract(6, 'hours')
+                .format('lll')}
+            </BodySmall>
+          )}
+        </View>
+      </View>
+      {screenName !== 'practice' ? (
+        <CustomButton
+          onPress={() =>
+            navigation.navigate('LeaderBoardScreen', {
+              quizDetails: quizDetails,
+            })
+          }
+          style={[styles.leaderBoardButton]}
+          isBorder={true}
+        >
+          {'LeaderBoard'}
+        </CustomButton>
+      ) : (
+        <CustomButton
+          onPress={() =>
+            navigation.navigate('ExamDescriptionScreen', {
+              quizDetails: quizDetails,
+              screenName: screenName,
+            })
+          }
+          style={[styles.leaderBoardButton]}
+          isBorder={true}
+        >
+          {'Retake Quiz'}
+        </CustomButton>
+      )}
+
+      <View>
+        {isPublished ? (
+          <CustomButton
+            onPress={() => {
+              navigation.navigate('ExamSolutionScreen', {
+                quizSoltuion: result,
+              });
+            }}
+            style={[styles.solutionButton]}
+          >
+            {'View Solution'}
+          </CustomButton>
+        ) : (
+          <CustomButton
+            onPress={() => {
+              navigation.navigate('HomeScreen');
+            }}
+            style={[styles.solutionButton]}
+          >
+            {'Go To Home '}
+          </CustomButton>
+        )}
+      </View> */}
+      <View style={styles.subContainer}>
+        <ExamDetails
+          examLevel={result?.quiz?.dificultyLevel}
+          examTime={result?.quiz?.duration}
+          examBatch={result?.quiz?.academicLevel}
+        />
+      </View>
+      <H4 style={styles.quizName} numberOfLines={2}>
+        {result?.quiz?.name}
+      </H4>
+      <ResultCap style={{ marginVertical: hp(2) }} />
+      <H6 style={{ marginVertical: hp(1), color: Colors.blue1 }}>অসাধারণ </H6>
+      <BodyMedium>তুমি পরিক্ষাটি সম্পন্ন করেছো</BodyMedium>
+      <View style={styles.scoreCard}>
+        <H2 style={{ marginBottom: hp(0.5) }}>Score</H2>
+        <BodyMedium>
+          <H2 style={styles.courseMarkStyle}>
+            {result?.totalCorrect
+              ? result?.totalCorrect * result?.quiz?.marksPerQuestion
+              : 0}
+          </H2>
+          <BodyLarge style={styles.bodyLargeStyle}>
+            /
+            {result?.quiz?.mcqs?.length
+              ? result?.quiz?.mcqs?.length * result?.quiz?.marksPerQuestion
+              : 0}
+          </BodyLarge>
+        </BodyMedium>
+      </View>
+      <View style={styles.marksContainer}>
+        <View>
+          <H7>Correct</H7>
+          <BodySmall>15</BodySmall>
+        </View>
+        <View>
+          <H7>Correct</H7>
+          <BodySmall>15</BodySmall>
+        </View>
+        <View>
+          <H7>Correct</H7>
+          <BodySmall>15</BodySmall>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    // justifyContent: 'space-between',
+    alignItems: 'center',
+    // backgroundColor: Colors.light4,
+  },
+  quizName: {
+    // marginBottom: hp(1),
+  },
+  scoreCard: {
+    height: hp(7),
+    width: wp(55),
+    borderRadius: hp(3.5),
+    backgroundColor: Colors.dark4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    marginVertical: hp(1),
+  },
+  marksContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: 'red',
+  },
+  subContainer: {
+    // alignItems: 'center',
+    marginTop: hp(1.5),
+  },
+  insidePerformanceContainer: {
+    backgroundColor: Colors.light4,
+    marginHorizontal: hp(3),
+    borderRadius: hp(2),
+    overflow: 'hidden',
+    marginBottom: hp(3),
+  },
+  publishTime: {
+    // top: hp(5),
+    // margin: hp(2),
+    bottom: hp(2),
+    left: hp(3),
+    // margin: hp(2),
+    position: 'absolute',
+    width: wp(80),
+  },
+  leaderBoard: {
+    width: wp(100),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: Padding.paddingHorizontal,
+    paddingTop: Padding.paddingTop,
+    backgroundColor: Colors.light4,
+  },
+  leaderBoardButton: {
+    borderWidth: 1.2,
+    borderColor: Colors.dark1,
+    // bottom: hp(2.5),
+    width: '93%',
+    alignSelf: 'center',
+    marginBottom: hp(0.8),
+    marginTop: hp(0.5),
+    // backgroundColor: Colors.primaryMain,
+  },
+  firstColumnStyle: {
+    height: hp(3),
+    width: wp(26),
+    textAlign: 'center',
+  },
+  markDetails: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  secondColumnStyle: {
+    height: hp(3),
+    width: wp(20),
+    textAlign: 'center',
+  },
+  courseMarkStyle: {
+    // fontSize: FontSize.XxxL,
+    color: Colors.dark1,
+  },
+  bodyLargeStyle: {
+    // fontSize: FontSize.XL,
+    color: Colors.dark1,
+  },
+  progressBarStyle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: hp(4),
+    marginTop: hp(3),
+  },
+  firstRowStyle: {
+    flexDirection: 'row',
+    borderTopColor: Colors.lightGray,
+    borderBottomColor: Colors.lightGray,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    backgroundColor: Colors.light1,
+    paddingVertical: hp(0.4),
+    justifyContent: 'center',
+  },
+  columnStyle: {
+    height: hp(3),
+    width: wp(26),
+    textAlign: 'center',
+  },
+  markContainer: {
+    height: hp(14),
+    width: wp(28),
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: hp(1),
+  },
+  textLeaderboard: {
+    backgroundColor: Colors.blue5,
+    borderRadius: hp(15),
+    height: hp(5),
+    width: wp(28),
+  },
+  performanceContainer: {
+    height: hp(54),
+    width: wp(100),
+    backgroundColor: Colors.orange4,
+    justifyContent: 'center',
+  },
+  secondRowStyle: {
+    flexDirection: 'row',
+    paddingVertical: hp(0.4),
+    justifyContent: 'center',
+  },
+  thirdRowStyle: {
+    flexDirection: 'row',
+    borderTopColor: Colors.lightGray,
+    borderTopWidth: 1,
+    paddingVertical: hp(0.4),
+    justifyContent: 'center',
+  },
+  textStyle: { color: Colors.orange0 },
+  solutionButton: {
+    width: '93%',
+    alignSelf: 'center',
+    marginBottom: hp(1.43),
+    backgroundColor: Colors.primaryMain,
+  },
+  performance: {
+    alignSelf: 'center',
+  },
+});
+
+export default ResultScreen;
